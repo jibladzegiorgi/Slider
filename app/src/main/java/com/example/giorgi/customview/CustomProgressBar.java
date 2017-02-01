@@ -14,4 +14,5 @@ public class CustomProgressBar extends AppCompatActivity {
        // HorizontalProgressBar  horizontalProgressBar= (HorizontalProgressBar) findViewById(R.id.asd);
        // Toast.makeText(this, "0"+horizontalProgressBar.getX(), Toast.LENGTH_SHORT).show();
     }
+
 }

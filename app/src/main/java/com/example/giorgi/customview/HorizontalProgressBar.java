@@ -1,6 +1,7 @@
 package com.example.giorgi.customview;
 
 import android.animation.ObjectAnimator;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.GradientDrawable;
@@ -8,10 +9,9 @@ import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
-import android.view.GestureDetector;
 import android.view.Gravity;
-import android.view.MotionEvent;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
@@ -44,6 +44,9 @@ public class HorizontalProgressBar extends LinearLayout {
     private int parentHeight;
     private int parentWidth;
     private int test;
+    private ImageView slideImage;
+    private ImageView backgroundImage;
+    private boolean click=false;
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     public HorizontalProgressBar(Context context, AttributeSet attrs) {
@@ -58,18 +61,20 @@ public class HorizontalProgressBar extends LinearLayout {
         setupStyleable(context, attrs);
     }
 
+
     //custom view simaghle da sigane
+    @SuppressLint("DrawAllocation")
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         parentWidth = MeasureSpec.getSize(widthMeasureSpec);
         parentHeight = MeasureSpec.getSize(heightMeasureSpec);
 
         progressParams.width = (int) ((parentWidth / DEFAULT_MAX_PROGRESS) * progress);
-        progressParams.width = (int) (parentWidth / 2);
-        progressParams.height = (int) (parentHeight-dp2px(padding));
+        progressParams.width = (int) ((parentWidth / 2)-dp2px(padding));
+        progressParams.height = (int) (parentHeight-(dp2px(padding)*2));
         progressParams.gravity = Gravity.CENTER_VERTICAL;
-        progressParams.setMargins(0, padding, 0, padding);
 
+        slideImage.setLayoutParams(new LinearLayout.LayoutParams(parentHeight/2,parentHeight/2));
 
         test=parentWidth-(parentWidth / 2);
 
@@ -79,6 +84,10 @@ public class HorizontalProgressBar extends LinearLayout {
     //region
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     public void setupStyleable(Context context, AttributeSet attrs) {
+
+        slideImage =new ImageView(context);
+        slideImage.setImageResource(R.drawable.btn_selected);
+
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.RoundCornerProgress);
 
         radius = (int) typedArray.getDimension(R.styleable.RoundCornerProgress_Radius, DEFAULT_PROGRESS_RADIUS);
@@ -109,6 +118,9 @@ public class HorizontalProgressBar extends LinearLayout {
         backgroundParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
         progressParams = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 
+        progressParams.setMargins((int) dp2px(padding), 0, 0, 0);
+        progressLinear.setGravity(Gravity.CENTER_VERTICAL);
+        progressLinear.setPadding(20,0,0,0);
 
         backgroundLinearLayout.setLayoutParams(backgroundParams);
         progressLinear.setLayoutParams(progressParams);
@@ -118,19 +130,31 @@ public class HorizontalProgressBar extends LinearLayout {
         backgroundLinearLayout.setBackground(backgroundDrawable);
         progressLinear.setBackground(progreeColor);
 
+        //progressLinear.addView(slideImage);
+
         backgroundLinearLayout.addView(progressLinear);
         //backgroundDrawable.setCornerRadii(new float[]{radius, radius, radius, radius, radius, radius, radius, radius});
         backgroundDrawable.setCornerRadius(radius);
         progreeColor.setCornerRadii(new float[]{radius, radius, radius, radius, radius, radius, radius, radius});//cotati naklebi unda iyos progresis kutxe
         //progreeColor.setCornerRadius(radius);
+
         addView(backgroundLinearLayout);
         backgroundLinearLayout.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(context, "click", Toast.LENGTH_SHORT).show();
-                final ObjectAnimator oa = ObjectAnimator.ofFloat(progressLinear, "x", test);
-                oa.setDuration(200);
-                oa.start();
+                if (!click) {
+                    click = true;
+                    Toast.makeText(context, "click_right", Toast.LENGTH_SHORT).show();
+                    final ObjectAnimator oa = ObjectAnimator.ofFloat(progressLinear, "x", test);
+                    oa.setDuration(200);
+                    oa.start();
+                }else {
+                    click = false;
+                    Toast.makeText(context, "click_left", Toast.LENGTH_SHORT).show();
+                    final ObjectAnimator oa = ObjectAnimator.ofFloat(progressLinear, "x", dp2px(padding));
+                    oa.setDuration(200);
+                    oa.start();
+                }
             }
         });
         progressLinear.setOnTouchListener(new OnSwipeTouchListener() {
@@ -139,6 +163,7 @@ public class HorizontalProgressBar extends LinearLayout {
             }
 
             public void onSwipeRight() {
+                
                 Toast.makeText(context, "right", Toast.LENGTH_SHORT).show();
                 final ObjectAnimator oa = ObjectAnimator.ofFloat(progressLinear, "x", test);
                 oa.setDuration(200);
@@ -147,7 +172,7 @@ public class HorizontalProgressBar extends LinearLayout {
 
             public void onSwipeLeft() {
                 Toast.makeText(context, "left", Toast.LENGTH_SHORT).show();
-                final ObjectAnimator oa = ObjectAnimator.ofFloat(progressLinear, "x", 0f);
+                final ObjectAnimator oa = ObjectAnimator.ofFloat(progressLinear, "x", dp2px(padding));
                 oa.setDuration(200);
                 oa.start();
             }
