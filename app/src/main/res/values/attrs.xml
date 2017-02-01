@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="RoundCornerProgress">
+        <attr name="rcReverse" format="boolean" />
+        <attr name="Progress" format="float" />
+        <attr name="rcMax" format="float" />
+        <attr name="rcSecondaryProgress" format="float" />
+        <attr name="BackgroundPadding" format="dimension" />
+        <attr name="Radius" format="dimension" />
+        <attr name="ProgressColor" format="color" />
+        <attr name="BackgroundColor" format="color" />
+    </declare-styleable>
+</resources>
